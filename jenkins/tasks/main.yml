@@ -1,0 +1,36 @@
+---
+    - name: install required packages for jenkins
+      yum:
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - java-1.8.0-openjdk
+    
+    - name: download jenkins repo
+      get_url:
+        url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+        dest: /etc/yum.repos.d/jenkins.repo
+
+    - name: import jenkins key
+      rpm_key:
+        key: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+        state: present
+
+    - name: install Jenkins
+      yum:
+        name: "jenkins"
+        state: present
+
+    - name: start the instance
+      service:
+        name: jenkins
+        state: started
+
+    - wait_for:
+        port: 8080
+
+    - name: register temporarily jenkins admin password
+      command: cat /var/lib/jenkins/secrets/initialAdminPassword
+      register: pass
+    
+    - debug: msg="{{ pass.stdout }}"

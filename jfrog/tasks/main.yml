@@ -1,0 +1,22 @@
+---
+    - name: required java packages jfrog
+      yum:
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - java-1.8.0-openjdk
+        - java-1.8.0-openjdk-devel
+    
+    - name: pull jfrog-ce image
+      docker_image:
+        name: docker.bintray.io/jfrog/artifactory-cpp-ce
+        source: pull
+
+    - name: create jfrog container with volumes
+      docker_container:
+        name: jfrog
+        image: docker.bintray.io/jfrog/artifactory-cpp-ce
+        ports: "8081:8081"
+        detach: yes
+        volumes:
+          - /jfrog/artifactory:/var/opt/jfrog/artifactory
